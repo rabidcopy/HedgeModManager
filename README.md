@@ -36,3 +36,5 @@ Once you're done, you can start checking the checkbox(es) of the mods and codes 
 **The following section is for mod developers only. If all you want to do is play with some mods made by others, simply follow the above steps.**
 
 Please check the [HedgeModManager Wiki](https://github.com/thesupersonic16/HedgeModManager/wiki) for information on releasing mods and updating.
+
+pushma
