@@ -299,7 +299,7 @@ Affected skills;
                 push  rax
                 push  rbx
                 mov   rax, {(long)pSeek}
-            iterate: 
+            iterate:
                 cmp   dword ptr [rax], 0x3C ; 60 (fixed array size of 20 elements, each are 3 bytes total)
                 jge   exit
                 mov   ebx, dword ptr [rax]
@@ -437,7 +437,7 @@ Abilities;
             "\x40\x0F\x95\xD5\x84\xD2",
             "xxxxxx"
         ),
-        
+
         Assemble("mov bpl, 1; nop")
     );
 }
@@ -514,6 +514,60 @@ This prevents the mouse cursor appearing under certain conditions, even if the p
     {
         ShowCursor(GetForegroundWindow() != HWND);
     }
+}
+
+Patch "Always Play 'One Way Dream' During Credits" in "Audio" by "M&M"
+{
+    /* v1.30: 0x1401C8AF3 */
+    WriteProtected<byte>
+    (
+        ScanSignature
+        (
+            "\x3C\x02\x0F\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\xD0",
+            "xxxx????x????xxx"
+        ),
+
+        0xE9, 0xAF, 0x05, 0x00, 0x00
+    );
+
+    /* v1.30: 0x14092A2AD */
+    WriteNop
+    (
+        ScanSignature
+        (
+            "\x3C\x02\x7C\x3C\x0F\x28\x05\x00\x00\x00\x00\x48\x8D\x54\x24\x00",
+            "xxxxxxx????xxxx?"
+        ),
+
+        4
+    );
+}
+
+Patch "Always Play 'Vandalize' During Credits" in "Audio" by "M&M"
+{
+    /* v1.30: 0x1401C8AF3 */
+    WriteNop
+    (
+        ScanSignature
+        (
+            "\x3C\x02\x0F\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\xD0",
+            "xxxx????x????xxx"
+        ),
+
+        8
+    );
+
+    /* v1.30: 0x14092A2AD */
+    WriteProtected<byte>
+    (
+        ScanSignature
+        (
+            "\x3C\x02\x7C\x3C\x0F\x28\x05\x00\x00\x00\x00\x48\x8D\x54\x24\x00",
+            "xxxxxxx????xxxx?"
+        ),
+
+        0xEB, 0x3E
+    );
 }
 
 Patch "Always Rainy on Islands" in "Weather" by "Hyper" does
@@ -658,23 +712,20 @@ Patch "Always Trickable Jump Boards" in "Gameplay" by "Hyper"
     );
 }
 
-Patch "Always Trickable Spin Dash Exit (experimental)" in "Gameplay" by "Hyper" does
+Patch "Always Trickable Spin Dash Exit" in "Gameplay" by "Hyper" does
 /*
 Allows Sonic to always trick when exiting out of Spin Dash whilst in the air.
 
 By default, exiting Spin Dash without boosting will make Sonic fall.
-
-Known issues;
-- Sonic will not retain momentum if you're not holding the analog stick in any direction (this happens in the base game too).
 */
 {
     WriteProtected<byte>
     (
-        /* 0x1408FD158 */
+        /* 0x1408A5B97 */
         ScanSignature
         (
-            "\x41\x8D\x50\x0F\xE8\xCC\xCC\xCC\xCC\xB0\x01\xEB\x02\x32\xC0\x48\x8B\x5C\x24\x58",
-            "xxxxx????xxxxxxxxxxx"
+            "\x41\x8D\x50\x04\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\xB0\x01",
+            "xxxxxxxx????xx"
         ),
 
         Assemble("lea edx, dword ptr [r8 + 0x10]")
@@ -691,7 +742,7 @@ Patch "Always Trickable Springs" in "Gameplay" by "Hyper"
             "\x0F\x44\xC8\x0F\xB6\xC1\x88\x8B\x00\x03\x00\x00",
             "xxxxxxxxxxxx"
         ),
-        
+
         3
     );
 }
@@ -952,7 +1003,7 @@ Patch "Bouncy Jump Ball" in "Animation" by "Hyper" does "Uses bouncy jump ball a
             5
         );
     }
-    
+
     // StateDoubleJump
     WriteAsmHook
     (
@@ -1151,7 +1202,7 @@ Patch "Disable Air Tricks from Traversal Objects" in "Gameplay" by "Hyper" does 
             "\xB0\x01\x88\x46\x3E",
             "xxxxx"
         ),
-        
+
         2
     );
 }
@@ -1168,6 +1219,21 @@ Patch "Disable Boost Replenishment from Timer" in "Gameplay" by "Hyper" does "Pr
         ),
 
         5
+    );
+}
+
+Patch "Disable Birthday Party Decorations" in "UI" by "Hyper" does "Disables the birthday party decorations on the HUD when using the Party Details option for Island Appearance in Extras."
+{
+    WriteProtected<byte>
+    (
+        /* 0x140968F33 */
+        ScanSignature
+        (
+            "\x74\x0E\xE8\xCC\xCC\xCC\xCC\x48\x8D\x0D\xCC\xCC\xCC\xCC\xEB\x0C",
+            "xxx????xxx????xx"
+        ),
+
+        0xEB
     );
 }
 
@@ -1308,7 +1374,7 @@ Patch "Disable Corruption Animations" in "Animation" by "Hyper" does "Disables t
             "\x74\x15\xB8\x04\x00\x00\x00\x48\x8B\x5C\x24\x30",
             "xxxxxxxxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -1321,7 +1387,7 @@ Patch "Disable Corruption Animations" in "Animation" by "Hyper" does "Disables t
             "\xBA\x05\x00\x00\x00\x0F\x45\xCA\x8B\xC1",
             "xxxxxxxxxx"
         ),
-        
+
         8
     );
 
@@ -1334,7 +1400,7 @@ Patch "Disable Corruption Animations" in "Animation" by "Hyper" does "Disables t
             "\x74\x15\xB8\x0B\x00\x00\x00",
             "xxxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -1347,7 +1413,7 @@ Patch "Disable Corruption Animations" in "Animation" by "Hyper" does "Disables t
             "\x74\x15\xB8\x0C\x00\x00\x00",
             "xxxxxxx"
         ),
-        
+
         0xEB
     );
 }
@@ -1392,7 +1458,7 @@ Patch "Disable Thorn Cylinders" in "Gameplay" by "Hyper" does "Disables the cyli
             "\xE8\xCC\xCC\xCC\xCC\x48\x8B\xD0\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x48\x8D\x15\xCC\xCC\xCC\xCC\x48\x8B\xCB\x4C\x8B\xF0\xE8\xCC\xCC\xCC\xCC\x49\x0F\xBE\x16",
             "x????xxxxxxx????xxx????xxxxxxx????xxxx"
         ),
-        
+
         0xE9, 0x4A, 0x04, 0x00, 0x00
     );
 }
@@ -1422,7 +1488,7 @@ Patch "Disable Cyloop Aura" in "Graphics" by "Hyper"
             "\x74\x16\x3C\x08\x74\x12",
             "xxxxxx"
         ),
-        
+
         0xEB
     );
 }
@@ -1539,7 +1605,7 @@ Patch "Disable Drop Dash" in "Gameplay" by "Hyper"
             "\x0F\x84\x94\x00\x00\x00\x48\x89\xF9",
             "xxxxxxxxx"
         ),
-        
+
         0xE9, 0x95, 0x00, 0x00, 0x00
     );
 
@@ -1552,7 +1618,7 @@ Patch "Disable Drop Dash" in "Gameplay" by "Hyper"
             "\x74\x14\xF3\x0F\x10\x8F\xB4\x00\x00\x00",
             "xxxxxxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -1565,7 +1631,7 @@ Patch "Disable Drop Dash" in "Gameplay" by "Hyper"
             "\x0F\x84\xB7\x00\x00\x00\x80\xBE\xC4\x00\x00\x00\x00",
             "xxxxxxxxxxxxx"
         ),
-        
+
         0xE9, 0xB8, 0x00, 0x00, 0x00
     );
 }
@@ -1595,7 +1661,7 @@ Patch "Disable Drop Dash Turning Delay" in "Physics" by "Hyper" does "Disables t
             "\x73\x19\x48\x8B\x47\x40",
             "xxxxxx"
         ),
-        
+
         2
     );
 }
@@ -1666,7 +1732,7 @@ Patch "Disable Forced Time" in "Time" by "Hyper" does "Disables the time being f
             "\x74\x0B\x0F\xB6\xD3\x48\x8B\xCF",
             "xxxxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -1695,7 +1761,7 @@ Patch "Disable Forced Weather for Bosses" in "Weather" by "Hyper" does "Disables
             "\x74\x0A\x33\xD2\x48\x8B\xC8\xE8\xCC\xCC\xCC\xCC\x48\x8B\x46\x18\x48\x8B\x48\x28\x48\x8B\x59\x48\xE8\xCC\xCC\xCC\xCC\x48\x8B\xD0\x48\x8B\xCB\xE8\xCC\xCC\xCC\xCC\x48\x8B\xD8",
             "xxxxxxxx????xxxxxxxxxxxxx????xxxxxxx????xxx"
         ),
-        
+
         0xEB
     );
 
@@ -1708,7 +1774,7 @@ Patch "Disable Forced Weather for Bosses" in "Weather" by "Hyper" does "Disables
             "\x74\x0A\x33\xD2\x48\x8B\xC8\xE8\xCC\xCC\xCC\xCC\x48\x8B\x46\x18\x48\x8B\x48\x28\x48\x8B\x59\x48\xE8\xCC\xCC\xCC\xCC\x48\x8B\xD0\x48\x8B\xCB\xE8\xCC\xCC\xCC\xCC\x45\x33\xFF",
             "xxxxxxxx????xxxxxxxxxxxxx????xxxxxxx????xxx"
         ),
-        
+
         0xEB
     );
 }
@@ -1997,7 +2063,7 @@ Patch "Disable Guardian Introductions" in "Enemy" by "Hyper" does "Disables the 
             "xxxxxx????x????xxxx????xxxxx????xxxxxxx????xxxx????xxxxxxxx????xxxxxx????xxxx?xxxx?xxxxxxxxxxxxxxxxxxxxx?xxxx?"
         )
         + 0x0A,
-        
+
         Assemble("mov edx, 8")
     );
 
@@ -2196,7 +2262,7 @@ Patch "Disable Jump Board Paths on Islands" in "Gameplay" by "Hyper" does "Stops
                 ; Check field for stage type.
                 test byte ptr [rcx + 0xB8], 0x2E
                 setz al
-                
+
                 ; Store result in our local boolean.
                 mov rdx, {(long)pIsWorldIsland}
                 mov byte ptr [rdx], al
@@ -2273,7 +2339,7 @@ Patch "Disable Loop Kick on Slide" in "Gameplay" by "Hyper"
             "\xE8\xCC\xCC\xCC\xCC\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x48\x8B\xC8\x45\x33\xC0\xB2\x1C",
             "x????xxxx????xxxxxxxx"
         ),
-        
+
         5
     );
 }
@@ -2299,7 +2365,7 @@ Notes;
             "\x74\x19\x8B\x0D\xCC\xCC\xCC\xCC\x81\xF1\x49\x8D\x64\x24",
             "xxxx????xxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -2312,7 +2378,7 @@ Notes;
             "\x0F\x84\xE0\x00\x00\x00\x44\x0F\xBE\xC0",
             "xxxxxxxxxx"
         ),
-        
+
         0xE9, 0xE1, 0x00, 0x00, 0x00
     );
 
@@ -2325,7 +2391,7 @@ Notes;
             "\x0F\x94\x44\x24\x48\x89\x5C\x24\x44",
             "xxxxxxxxx"
         ),
-        
+
         Assemble("mov byte ptr [rsp + 0x58 + 0xFFFFFFFFFFFFFFF0], 1")
     );
 
@@ -2351,7 +2417,7 @@ Notes;
             "\x0F\x44\xD9\xBA\x3D\x23\x00\x00",
             "xxxxxxxx"
         ),
-        
+
         3
     );
 
@@ -2389,7 +2455,7 @@ Notes;
         0xEB
     );
 }
- 
+
 Patch "Disable Photo Mode Camera Collision" in "Camera" by "Hyper"
 {
     // Camera position
@@ -2401,7 +2467,7 @@ Patch "Disable Photo Mode Camera Collision" in "Camera" by "Hyper"
             "\x0F\x84\x1D\x02\x00\x00\xF3\x0F\x10\x0D",
             "xxxxxxxxxx"
         ),
-        
+
         0xE9, 0x1E, 0x02, 0x00, 0x00
     );
 
@@ -2414,7 +2480,7 @@ Patch "Disable Photo Mode Camera Collision" in "Camera" by "Hyper"
             "\x0F\x84\xAA\x01\x00\x00\x0F\x28\x8D\x80\x00\x00\x00",
             "xxxxxxxxxxxxx"
         ),
-        
+
         0xE9, 0xAB, 0x01, 0x00, 0x00
     );
 
@@ -2455,7 +2521,7 @@ Patch "Disable Photo Mode Distance Limit" in "Camera" by "Hyper"
             "\x76\x79\x0F\x10\x23",
             "xxxxx"
         ),
-        
+
         0xEB
     );
 }
@@ -2509,7 +2575,7 @@ Known issues;
                 movss xmm7, dword ptr [rax]
                 pop   rax
             ",
-            
+
             /* 0x1400A55CB */
             ScanSignature
             (
@@ -2661,7 +2727,7 @@ RFL research by GamingLeroy.
         This hook is a *hack* that checks the last entry in the xmmword
         before it gets written to the xmm0 register, which we then replace
         with zero if equal to 50.0f.
-        
+
         The value in RAX is different per cycle of this function (it is
         run every frame), so we must check this value first to verify
         we're modifying the right struct before writing to it.
@@ -2713,6 +2779,52 @@ Patch "Disable Shadows" in "Graphics" by "Luig & Hyper"
     );
 }
 
+Patch "Disable Skill Camera Events" in "Camera" by "Hyper" does
+/*
+Disables the camera events for skills.
+
+The "Dramatic Battle Skill Camera" option in the game settings must be enabled for this code to work.
+
+This code behaves the same as the option described above, but keeps the camera events for performing special attacks on titans, as well as the Quick Cyloop camera.
+
+Affected skills;
+- Cross Slash
+- Cyclone Kick
+- Grand Slam
+- Homing Shot
+- Loop Kick
+- Recovery Smash
+- Sonic Boom
+- Spin Slash
+- Stomp Attack
+- Wild Rush
+*/
+{
+    WriteProtected<byte>
+    (
+        /* 0x1408D5986 */
+        ScanSignature
+        (
+            "\x0F\x84\x83\x00\x00\x00\x44\x38\x36",
+            "xxxxxxxxx"
+        ),
+
+        0xE9, 0x84, 0x00, 0x00, 0x00
+    );
+
+    WriteNop
+    (
+        /* 0x14087F9E9 */
+        ScanSignature
+        (
+            "\xE8\xCC\xCC\xCC\xCC\x41\xC7\x86\xAC\x00\x00\x00\x03\x00\x00\x00",
+            "x????xxxxxxxxxxx"
+        ),
+
+        5
+    );
+}
+
 Patch "Disable Soldier Eggs" in "Enemy" by "Hyper" does "Disables the egg spawners for the Soldier enemy, allowing them to spawn instantly."
 {
     WriteNop
@@ -2725,6 +2837,21 @@ Patch "Disable Soldier Eggs" in "Enemy" by "Hyper" does "Disables the egg spawne
         ),
 
         2
+    );
+}
+
+Patch "Disable Spin Charge Camera" in "Camera" by "Hyper" does "Disables the zoom camera when charging a Spin Dash."
+{
+    WriteNop
+    (
+        /* 0x1408A67DC */
+        ScanSignature
+        (
+            "\xE8\xCC\xCC\xCC\xCC\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x48\x8B\xC8\x45\x33\xC0\xB2\x24",
+            "x????xxxx????xxxxxxxx"
+        ),
+
+        5
     );
 }
 
@@ -2751,7 +2878,7 @@ Patch "Disable Starfall Cutscene" in "Gameplay" by "Hyper" does "Disables the cu
         "\xE8\xCC\xCC\xCC\xCC\x33\xC9\xC6\x84\x24\x10\x01\x00\x00\x02",
         "x????xxxxxxxxxx"
     );
-    
+
     WriteNop(addr, 5);
     WriteNop(addr + 0x38, 5);
 }
@@ -2776,7 +2903,7 @@ Notes;
             "\x41\x8D\x50\x3A\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\x17",
             "xxxxx????xxxx"
         ),
-        
+
         asm
     );
 
@@ -2976,7 +3103,7 @@ Affected objects;
             "\x0F\x44\xD0\x88\x93\x00\x03\x00\x00\x0F\xB6\xC2\x24\xF7",
             "xxxxxxxxxxxxxx"
         ),
-        
+
         Assemble("mov dl, 1; nop")
     );
 }
@@ -2991,7 +3118,7 @@ Patch "Disable Water Audio Filter" in "Audio" by "Hyper"
             "\x74\x65\x84\xC9\x0F\x85\x31\x01\x00\x00",
             "xxxxxxxxxx"
         ),
-        
+
         0xEB
     );
 }
@@ -3120,7 +3247,7 @@ Patch "Fix Quick Cyloop Lock-On" in "Fixes" by "WasifBoomz & The Duck Dealer" do
         ScanSignature
         (
             "\x76\x12\x8B\x46\x28\x48\x8D\x55\x97\x48\x8B\xCB\x89\x45\x97\xE8\xCC\xCC\xCC\xCC\x48\x8B\x47\x38",
-	    "xxxxxxxxxxxxxxxx????xxxx"
+            "xxxxxxxxxxxxxxxx????xxxx"
         ),
 
         0xEB
@@ -3138,7 +3265,7 @@ Patch "Disable Tutorial Messages" in "Gameplay" by "Hyper" does "Disables all in
             "\x48\x89\xCF\xB2\x01\x48\x8D\x0D\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\xB2\x01\x48\x89\x47\x38\x48\x8D\x0D\xCC\xCC\xCC\xCC\xE8\xCC\xCC\xCC\xCC\x48\x89\x47\x40",
             "xxxxxxxx????x????xxxxxxxxx????x????xxxx"
         ),
-        
+
         0xEB, 0x63
     );
 
@@ -3166,7 +3293,7 @@ Patch "Disable Tutorial Messages" in "Gameplay" by "Hyper" does "Disables all in
             mov ax, word ptr [rax]
             cmp ax, 0x7574 ; tu (endian-swapped)
             jne ret
-            
+
             ; Exclusions, in the event that a softlock occurs.
             mov rax, qword ptr [rdx + 0x48]
             mov eax, dword ptr [rax + 0x07]
@@ -3519,7 +3646,7 @@ Patch "Fix Shadow Stutter" in "Fixes" by "Hyper" does "Fixes shadows not interpo
             "\x0F\xB6\x42\x74\x88\x41\x74\x8B\x42\x78",
             "xxxxxxxxxx"
         ),
-        
+
         Assemble("mov byte ptr [rcx + 0x74], 0; nop; nop; nop")
     );
 }
@@ -3778,7 +3905,7 @@ Unsupported objects;
                     case "col_cmnisl_obj_switchusual":
                         return originalName = Marshal.StringToHGlobalAnsi("col_cmn_obj_switch");
                 }
-                
+
                 break;
             }
 
@@ -3815,7 +3942,7 @@ Unsupported objects;
             "\x74\x0F\x48\x8D\x15\xCC\xCC\xCC\xCC\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x40\x38\x75\x68",
             "xxxxx????xxxx????xxxx"
         ),
-        
+
         2
     );
 
@@ -3997,32 +4124,32 @@ Patch "Force Depth of Field" in "Graphics" by "WasifBoomz & Dicey" does "Forces 
         $@"
             ; Enable DOF
             mov  byte ptr [r8], 1
-            
+
             ; Set foreground bokeh depth to end at 3 and start at 0
             mov  dword ptr [r8+4], 0x40400000
             mov  dword ptr [r8+8], 0x00000000
-			
+
             ; Set background bokeh depth to start at 4000 and end at 50
             mov  dword ptr [r8+12], 0x42480000
             mov  dword ptr [r8+16], 0x457A0000
-			
+
             ; Increase sample count to 20
             mov  dword ptr [r8+32], 20
-			
+
             ; Set render target size to full
             mov  byte ptr [r8+48], 0
         ",
-			
+
         /* 0x1482689B8 */
         ScanSignature
         (
             "\x45\x0F\x10\x08\x89\x84\x24\x90\x00\x00\x00",
             "xxxxxxxxxxx"
         ),
-			
+
         HookBehavior.After
     );
-	
+
     // FxRenderTargetSetting
     WriteAsmHook
     (
@@ -4031,18 +4158,18 @@ Patch "Force Depth of Field" in "Graphics" by "WasifBoomz & Dicey" does "Forces 
             lea rbp, [rsp-400h]
             sub rsp, 500h
             mov r15, rcx
-		
+
             ; Set render target size to full
             mov dword ptr [rdx], 0
         ",
-			
+
         /* 0x140B83134 */
         ScanSignature
         (
             "\x48\x8D\xAC\x24\x00\xFC\xFF\xFF\x48\x81\xEC\x00\x05\x00\x00\x4C\x8B\xF9",
             "xxxxxxxxxxxxxxxxxx"
         ),
-			
+
         HookBehavior.Replace
     );
 }
@@ -4261,7 +4388,7 @@ Unsupported objects;
             "\x0F\x84\x36\x01\x00\x00\x48\x8D\x15",
             "xxxxxxxxx"
         ),
-        
+
         6
     );
 
@@ -4349,7 +4476,7 @@ Unsupported objects;
                 ; Restore original code.
                 movups xmmword ptr [rdi + 0x80], xmm0
                 movups xmm0, xmmword ptr [rbp + 0x110 + 0xFFFFFFFFFFFFFF80]
-                
+
                 push   rax
                 mov    rax, {(long)pWorldType}
                 mov    byte ptr [rax], 1
@@ -4700,7 +4827,7 @@ Patch "Hide Challenge Markers" in "Graphics" by "Hyper" does "Hides the markers 
             "\x74\x17\x48\x8D\x55\xD7\x48\x8B\xC8\xE8\xCC\xCC\xCC\xCC\x48\x8B\xD3\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x48\x8B\x8F\x58\x02\x00\x00",
             "xxxxxxxxxx????xxxxxxx????xxxxxxx"
         ),
-        
+
         0xEB
     );
 
@@ -4713,7 +4840,7 @@ Patch "Hide Challenge Markers" in "Graphics" by "Hyper" does "Hides the markers 
             "\x0F\x85\xE5\x00\x00\x00\xE8",
             "xxxxxxx"
         ),
-        
+
         0xE9, 0xE6, 0x00, 0x00, 0x00
     );
 
@@ -4726,7 +4853,7 @@ Patch "Hide Challenge Markers" in "Graphics" by "Hyper" does "Hides the markers 
             "\x0F\x8E\x47\x02\x00\x00\x4C\x89\xA4\x24\x58\x01\x00\x00",
             "xxxxxxxxxxxxxx"
         ),
-        
+
         0xE9, 0x48, 0x02, 0x00, 0x00
     );
 }
@@ -4839,7 +4966,7 @@ Patch "Hide Skill Piece Transition" in "UI" by "Hyper" does "Removes the transit
 {
     WriteNop
     (
-        /* 0x1407F0906 */
+        /* 0x140864297 */
         ScanSignature
         (
             "\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4C\x24\x50\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\x80\xE8\xCC\xCC\xCC\xCC\x45\x84\xFF",
@@ -4851,11 +4978,11 @@ Patch "Hide Skill Piece Transition" in "UI" by "Hyper" does "Removes the transit
 
     WriteNop
     (
-        /* 0x14084A7AB */
+        /* 0x1408CCA29 */
         ScanSignature
         (
-            "\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\xB7\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\x17\xE8",
-            "x????xxxxx????xxxxx"
+            "\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\xD7\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4D\xA7",
+            "x????xxxxx????xxxx"
         ),
 
         5
@@ -5086,6 +5213,27 @@ Patch "Reduced Homing Delay" in "Physics" by "Hyper" does "Reduces the delay aft
     }
 }
 
+Patch "Restore Unused Spin Charge Camera Shake" in "Camera" by "Hyper"
+{
+    WriteAsmHook
+    (
+        $@"
+            lea rbx, qword ptr [rax + 0xE8]
+            mov rax, {(long)System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi("SpinBoostCharge")}
+            mov qword ptr [rbx], rax
+        ",
+
+        /* 0x1408A66FE */
+        ScanSignature
+        (
+            "\x48\x8D\x98\xE8\x00\x00\x00\x48\x8B\x03\x48\x85\xC0\x74\x77\x80\x38\x00\x74\x72\xBA\xC6\x22\x00\x00\x48\x8D\x4C\x24\x30\xE8\xCC\xCC\xCC\xCC\x0F\x28\x05\xCC\xCC\xCC\xCC\x48\x8D\x05\xCC\xCC\xCC\xCC\x48\x8B\xCB\x48\x89\x44\x24\x30\x66\x0F\x7F\x44\x24\x60\x48\xC7\x44\x24\x50\x00\x00\x00\x00\xE8\xCC\xCC\xCC\xCC\x48\x8D\x54\x24\x20\x48\x89\x44\x24\x50\x48\x8B\xCF\xE8\xCC\xCC\xCC\xCC\x48\x8B\xCF\x0F\x28\x00\x0F\x29\x44\x24\x60\xE8\xCC\xCC\xCC\xCC\x48\x8B\xC8\x48\x8D\x54\x24\x30\xE8\xCC\xCC\xCC\xCC\x48\x8D\x4C\x24\x30\xE8\xCC\xCC\xCC\xCC\xBA\x12\x00\x00\x00",
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx????xxx????xxx????xxxxxxxxxxxxxxxxxxxxxxxx????xxxxxxxxxxxxxx????xxxxxxxxxxxx????xxxxxxxxx????xxxxxx????xxxxx"
+        ),
+
+        HookBehavior.Replace
+    );
+}
+
 Patch "Restore Unused Supreme QTE" in "Gameplay" by "Gordon Ramsay" does
 /*
 Restores an unused quick time event for the final blow to Supreme.
@@ -5111,7 +5259,7 @@ Code "Show Framerate on Title Bar" in "System" by "Hyper & Sajid"
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Text;
-    
+
     [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
     static extern int GetWindowTextLength(IntPtr hWnd);
 
@@ -5154,7 +5302,7 @@ Code "Show Framerate on Title Bar" in "System" by "Hyper & Sajid"
                     "\xF3\x0F\x10\x41\x14\x48\x8D\x79\x14",
                     "xxxxxxxxx"
                 ),
-                
+
                 HookBehavior.Replace
             );
         }
